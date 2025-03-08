@@ -17,6 +17,7 @@ export default function InvoiceDetailPage() {
   const [error, setError] = useState(null);
   const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
   const [showPdfModal, setShowPdfModal] = useState(false);
+  const [pdfKey, setPdfKey] = useState(0); // Key to force re-render of PDF component
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState(null);
 
@@ -51,6 +52,18 @@ export default function InvoiceDetailPage() {
 
     fetchInvoiceDetails();
   }, [status, params.id]);
+
+  // Handle PDF generation
+  const handlePdfGeneration = () => {
+    // Reset the PDF component with a new key to ensure fresh render
+    setPdfKey(prevKey => prevKey + 1);
+    setShowPdfModal(true);
+    
+    // Show success message
+    setTimeout(() => {
+      setSuccessMessage('PDF generation started. The print dialog should appear shortly.');
+    }, 1000);
+  };
 
   // Update invoice status
   const updateInvoiceStatus = async (newStatus) => {
@@ -323,7 +336,7 @@ export default function InvoiceDetailPage() {
             </button>
           )}
           <button
-            onClick={() => setShowPdfModal(true)}
+            onClick={handlePdfGeneration}
             className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition-colors"
           >
             Download PDF
@@ -369,6 +382,7 @@ export default function InvoiceDetailPage() {
       {/* PDF Generator Modal */}
       {showPdfModal && invoice && session && (
         <InvoicePdfGenerator 
+          key={pdfKey} // Force re-render when key changes
           invoice={invoice} 
           session={session} 
           onClose={() => setShowPdfModal(false)} 

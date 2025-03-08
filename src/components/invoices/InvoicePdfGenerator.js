@@ -1,10 +1,11 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useReactToPrint } from 'react-to-print';
 
 export default function InvoicePdfGenerator({ invoice, session, onClose }) {
-  const componentRef = useRef();
+  const componentRef = useRef(null);
+  const [isReady, setIsReady] = useState(false);
 
   // Format currency
   const formatCurrency = (amount) => {
@@ -24,20 +25,77 @@ export default function InvoicePdfGenerator({ invoice, session, onClose }) {
     }).format(date);
   };
 
-  // Handle print/download
-  const handlePrint = useReactToPrint({
-    content: () => componentRef.current,
-    documentTitle: `Invoice-${invoice.invoiceNumber}`,
-    onAfterPrint: onClose,
-    removeAfterPrint: true,
-  });
-  
-  // Ensure the ref is properly initialized
+  // Set component as ready after mount
   useEffect(() => {
-    if (!componentRef.current) {
-      console.error('PDF component reference not initialized');
-    }
+    // Short delay to ensure DOM is fully rendered
+    const timer = setTimeout(() => {
+      setIsReady(true);
+    }, 1000); // Longer delay to ensure DOM is fully rendered
+    
+    return () => clearTimeout(timer);
   }, []);
+  
+  // Setup react-to-print
+  const handlePrint = () => {
+    if (!componentRef.current) {
+      console.error('Print reference not available');
+      return;
+    }
+    
+    // Use a direct implementation
+    const printContent = () => {
+      try {
+        const printIframe = document.createElement('iframe');
+        printIframe.style.position = 'absolute';
+        printIframe.style.top = '-9999px';
+        printIframe.style.left = '-9999px';
+        document.body.appendChild(printIframe);
+        
+        const contentDocument = printIframe.contentDocument;
+        const printableContent = componentRef.current.innerHTML;
+        
+        contentDocument.open();
+        contentDocument.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Invoice-${invoice.invoiceNumber}</title>
+              <style>
+                body { font-family: Arial, sans-serif; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { padding: 8px; text-align: left; }
+                th { border-bottom: 1px solid #ddd; }
+                .text-right { text-align: right; }
+                @media print {
+                  body { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+                }
+              </style>
+            </head>
+            <body>
+              ${printableContent}
+            </body>
+          </html>
+        `);
+        contentDocument.close();
+        
+        printIframe.onload = () => {
+          printIframe.contentWindow.focus();
+          printIframe.contentWindow.print();
+          
+          // Remove iframe after printing
+          setTimeout(() => {
+            document.body.removeChild(printIframe);
+            onClose();
+          }, 100);
+        };
+      } catch (error) {
+        console.error('Print error:', error);
+      }
+    };
+    
+    // Delay to ensure content is ready
+    setTimeout(printContent, 100);
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -47,9 +105,10 @@ export default function InvoicePdfGenerator({ invoice, session, onClose }) {
           <div className="flex space-x-2">
             <button
               onClick={handlePrint}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              disabled={!isReady}
+              className={`px-4 py-2 ${!isReady ? 'bg-blue-300 cursor-wait' : 'bg-blue-500 hover:bg-blue-600'} text-white rounded transition-colors`}
             >
-              Download PDF
+              {!isReady ? 'Preparing PDF...' : 'Download PDF'}
             </button>
             <button
               onClick={onClose}
@@ -61,7 +120,7 @@ export default function InvoicePdfGenerator({ invoice, session, onClose }) {
         </div>
 
         {/* Printable Invoice */}
-        <div ref={componentRef} className="p-8 bg-white">
+        <div ref={componentRef} className="p-8 bg-white" id="printable-invoice">
           <div className="mb-8 flex justify-between items-start">
             <div>
               <h1 className="text-3xl font-bold text-gray-800">INVOICE</h1>

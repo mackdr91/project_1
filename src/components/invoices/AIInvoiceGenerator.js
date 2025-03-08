@@ -46,7 +46,7 @@ export default function AIInvoiceGenerator({ onGenerate, onCancel }) {
     }
   };
 
-  const useExample = (example) => {
+  const handleExampleClick = (example) => {
     setClientDescription(example);
   };
 
@@ -86,7 +86,7 @@ export default function AIInvoiceGenerator({ onGenerate, onCancel }) {
               <button
                 key={index}
                 type="button"
-                onClick={() => useExample(example)}
+                onClick={() => handleExampleClick(example)}
                 className="text-sm text-left text-blue-600 hover:text-blue-800 hover:underline block w-full truncate"
               >
                 {example}

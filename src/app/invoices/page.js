@@ -27,7 +27,7 @@ export default function InvoicesPage() {
   // Fetch invoices
   useEffect(() => {
     fetchInvoices();
-  }, [status, currentPage, statusFilter]);
+  }, [status, currentPage, statusFilter, fetchInvoices]);
 
   // Handle successful invoice generation
   const handleInvoiceGenerated = (newInvoice) => {
@@ -138,7 +138,7 @@ export default function InvoicesPage() {
         <div className="text-center py-8">
           <p className="text-gray-500">No invoices found.</p>
           <p className="text-gray-500 mt-2">
-            Click "Generate with AI" to create your first invoice.
+            Click &ldquo;Generate with AI&rdquo; to create your first invoice.
           </p>
         </div>
       ) : (

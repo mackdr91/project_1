@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -36,14 +36,7 @@ export default function InvoiceAnalytics({ invoices }) {
     monthlyData: [],
   });
 
-  useEffect(() => {
-    if (invoices && invoices.length > 0) {
-      calculateStats(invoices);
-      setLoading(false);
-    }
-  }, [invoices]);
-
-  const calculateStats = (invoices) => {
+  const calculateStats = useCallback((invoices) => {
     // Calculate basic stats
     const totalInvoices = invoices.length;
     const totalAmount = invoices.reduce((sum, invoice) => sum + invoice.total, 0);
@@ -71,7 +64,16 @@ export default function InvoiceAnalytics({ invoices }) {
       statusCounts,
       monthlyData,
     });
-  };
+  }, []);
+
+  useEffect(() => {
+    if (invoices && invoices.length > 0) {
+      calculateStats(invoices);
+      setLoading(false);
+    }
+  }, [invoices, calculateStats]);
+
+
 
   const getMonthlyData = (invoices) => {
     const now = new Date();

@@ -14,21 +14,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Next.js MongoDB App",
-  description: "A Next.js application with MongoDB integration",
+  title: "AI Flow - Streamline Your Workflow",
+  description: "Transform your workflow with AI-powered automation and smart insights",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen`}
       >
         <AuthProvider>
           <AuthNavbar />
-          <main className="container mx-auto py-4">
-            {children}
-          </main>
+          {children}
         </AuthProvider>
       </body>
     </html>

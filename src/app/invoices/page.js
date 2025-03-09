@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import AIInvoiceGenerator from '@/components/invoices/AIInvoiceGenerator';
 
@@ -24,21 +24,8 @@ export default function InvoicesPage() {
     }
   }, [status, router]);
 
-  // Fetch invoices
-  useEffect(() => {
-    fetchInvoices();
-  }, [status, currentPage, statusFilter, fetchInvoices]);
-
-  // Handle successful invoice generation
-  const handleInvoiceGenerated = (newInvoice) => {
-    // Refresh the invoice list
-    fetchInvoices();
-    // Close the modal
-    setShowGenerateModal(false);
-  };
-  
-  // Fetch invoices function (extracted for reuse)
-  const fetchInvoices = async () => {
+  // Fetch invoices function wrapped in useCallback
+  const fetchInvoices = useCallback(async () => {
     if (status === 'authenticated') {
       try {
         setLoading(true);
@@ -53,14 +40,27 @@ export default function InvoicesPage() {
         const data = await response.json();
         setInvoices(data.invoices);
         setTotalPages(data.pagination.pages);
-        setCurrentPage(1);
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     }
-  };
+  }, [status, currentPage, statusFilter]);
+
+  // Fetch invoices on mount and when dependencies change
+  useEffect(() => {
+    fetchInvoices();
+  }, [fetchInvoices]);
+
+  // Handle successful invoice generation
+  const handleInvoiceGenerated = useCallback((newInvoice) => {
+    // Refresh the invoice list
+    fetchInvoices();
+    // Close the modal
+    setShowGenerateModal(false);
+  }, [fetchInvoices]);
+
 
   // Format currency
   const formatCurrency = (amount) => {
@@ -138,7 +138,7 @@ export default function InvoicesPage() {
         <div className="text-center py-8">
           <p className="text-gray-500">No invoices found.</p>
           <p className="text-gray-500 mt-2">
-            Click &ldquo;Generate with AI&rdquo; to create your first invoice.
+            Click "Generate with AI" to create your first invoice.
           </p>
         </div>
       ) : (

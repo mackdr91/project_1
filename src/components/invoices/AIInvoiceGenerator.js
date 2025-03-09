@@ -1,15 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 export default function AIInvoiceGenerator({ onGenerate, onCancel }) {
   const [clientDescription, setClientDescription] = useState('');
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);
   const [examples] = useState([
-    "Website design for ABC Company, including 5 pages, logo design, and mobile optimization.",
-    "Monthly social media management for XYZ Inc, including content creation for Instagram, Facebook, and Twitter.",
-    "Consulting services for Johnson LLC, 10 hours at $150/hour, focusing on business strategy and market analysis."
+    'Website design for ABC Company, including 5 pages, logo design, and mobile optimization.',
+    'Monthly social media management for XYZ Inc, including content creation for Instagram, Facebook, and Twitter.',
+    'Consulting services for Johnson LLC, 10 hours at $150/hour, focusing on business strategy and market analysis.'
   ]);
 
   const handleSubmit = async (e) => {
@@ -46,9 +46,9 @@ export default function AIInvoiceGenerator({ onGenerate, onCancel }) {
     }
   };
 
-  const handleExampleClick = (example) => {
+  const handleExampleClick = useCallback((example) => {
     setClientDescription(example);
-  };
+  }, []);
 
   return (
     <div className="bg-white rounded-lg p-6 w-full max-w-md">

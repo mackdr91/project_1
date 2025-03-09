@@ -36,46 +36,7 @@ export default function InvoiceAnalytics({ invoices }) {
     monthlyData: [],
   });
 
-  const calculateStats = useCallback((invoices) => {
-    // Calculate basic stats
-    const totalInvoices = invoices.length;
-    const totalAmount = invoices.reduce((sum, invoice) => sum + invoice.total, 0);
-    const paidInvoices = invoices.filter(invoice => invoice.status === 'paid');
-    const paidAmount = paidInvoices.reduce((sum, invoice) => sum + invoice.total, 0);
-    const overdueInvoices = invoices.filter(invoice => invoice.status === 'overdue');
-    const overdueAmount = overdueInvoices.reduce((sum, invoice) => sum + invoice.total, 0);
-    const averageInvoiceValue = totalAmount / totalInvoices;
-
-    // Calculate status counts
-    const statusCounts = invoices.reduce((counts, invoice) => {
-      counts[invoice.status] = (counts[invoice.status] || 0) + 1;
-      return counts;
-    }, {});
-
-    // Calculate monthly data (last 6 months)
-    const monthlyData = getMonthlyData(invoices);
-
-    setStats({
-      totalInvoices,
-      totalAmount,
-      paidAmount,
-      overdueAmount,
-      averageInvoiceValue,
-      statusCounts,
-      monthlyData,
-    });
-  }, []);
-
-  useEffect(() => {
-    if (invoices && invoices.length > 0) {
-      calculateStats(invoices);
-      setLoading(false);
-    }
-  }, [invoices, calculateStats]);
-
-
-
-  const getMonthlyData = (invoices) => {
+  const getMonthlyData = useCallback((invoices) => {
     const now = new Date();
     const months = [];
     const monthlyTotals = [];
@@ -106,7 +67,45 @@ export default function InvoiceAnalytics({ invoices }) {
     }
 
     return { months, monthlyTotals, monthlyPaid };
-  };
+  }, []);
+
+  const calculateStats = useCallback((invoices) => {
+    // Calculate basic stats
+    const totalInvoices = invoices.length;
+    const totalAmount = invoices.reduce((sum, invoice) => sum + invoice.total, 0);
+    const paidInvoices = invoices.filter(invoice => invoice.status === 'paid');
+    const paidAmount = paidInvoices.reduce((sum, invoice) => sum + invoice.total, 0);
+    const overdueInvoices = invoices.filter(invoice => invoice.status === 'overdue');
+    const overdueAmount = overdueInvoices.reduce((sum, invoice) => sum + invoice.total, 0);
+    const averageInvoiceValue = totalAmount / totalInvoices;
+
+    // Calculate status counts
+    const statusCounts = invoices.reduce((counts, invoice) => {
+      counts[invoice.status] = (counts[invoice.status] || 0) + 1;
+      return counts;
+    }, {});
+
+    // Calculate monthly data (last 6 months)
+    const monthlyData = getMonthlyData(invoices);
+
+    setStats({
+      totalInvoices,
+      totalAmount,
+      paidAmount,
+      overdueAmount,
+      averageInvoiceValue,
+      statusCounts,
+      monthlyData,
+    });
+  }, [getMonthlyData]);
+
+  useEffect(() => {
+    if (invoices && invoices.length > 0) {
+      calculateStats(invoices);
+      setLoading(false);
+    }
+  }, [invoices, calculateStats]);
+
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {

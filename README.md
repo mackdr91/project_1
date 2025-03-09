@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# AI Flow - Smart Invoice Management
+
+AI Flow is a powerful SaaS application that helps businesses automate their invoice management using AI. Built with Next.js and MongoDB, it offers smart task automation, workflow optimization, and AI-driven insights.
 
 ## Getting Started
 
@@ -31,6 +33,24 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To deploy this application on Vercel:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push your code to GitHub
+
+2. Visit [Vercel](https://vercel.com) and create a new project
+
+3. Import your GitHub repository
+
+4. Configure the following environment variables in Vercel's project settings:
+   ```
+   NEXTAUTH_URL=https://your-domain.vercel.app
+   NEXTAUTH_SECRET=your-secure-secret
+   MONGODB_URI=your-mongodb-connection-string
+   ```
+
+5. Deploy the application
+
+### Important Notes
+- Ensure your MongoDB instance is accessible from Vercel's servers
+- Use a strong NEXTAUTH_SECRET for production
+- Update NEXTAUTH_URL to match your Vercel deployment URL
